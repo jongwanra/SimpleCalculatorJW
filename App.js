@@ -18,19 +18,20 @@ export default class App extends Component {
     };
   }
 
-  validate = () => {
+  _validate = () => {
     const { result } = this.state;
     switch (result.slice(-1)) {
       case "+":
       case "-":
       case "*":
       case "/":
+      case ".":
         return false;
     }
     return true;
   };
 
-  calculateResult = () => {
+  _calculateResult = () => {
     const { result } = this.state;
     this.setState({
       store: eval(result)
@@ -39,9 +40,10 @@ export default class App extends Component {
 
   _pressButton = num => {
     const { result } = this.state;
-
-    if (num == "=") {
-      return this.validate() && this.calculateResult();
+    if (result == "" && num == ".") return false;
+    else if (result.slice(-1) == "." && num == ".") return false;
+    else if (num == "=") {
+      return this._validate() && this._calcultateResult();
     } else {
       this.setState({
         result: result + num
@@ -49,7 +51,7 @@ export default class App extends Component {
     }
   };
 
-  operate = operation => {
+  _operate = operation => {
     const { result } = this.state;
     switch (operation) {
       case "←":
@@ -65,7 +67,7 @@ export default class App extends Component {
       case "*":
       case "/":
         if (result == "") return false;
-        if (result.slice(-1) > 0) {
+        if (result.slice(-1) >= 0) {
           this.setState({
             result: result + operation
           });
@@ -73,12 +75,13 @@ export default class App extends Component {
     }
   };
 
-  _pressReset = () => {
+  _resetButton = () => {
     this.setState({
       result: "",
       store: ""
     });
   };
+
   render() {
     let numbers = [[1, 2, 3, 0], [4, 5, 6, "."], [7, 8, 9, "="]];
     let row = [];
@@ -113,10 +116,10 @@ export default class App extends Component {
           <TouchableOpacity
             key={operation[k]}
             onPress={() => {
-              this.operate(operation[k]);
+              this._operate(operation[k]);
             }}
           >
-            <View key={k} style={[styles.box, { paddingTop: "20%" }]}>
+            <View key={k} style={[styles.box, { paddingTop: "25%" }]}>
               <Text style={styles.boxInnerText}>{operation[k]}</Text>
             </View>
           </TouchableOpacity>
@@ -126,7 +129,7 @@ export default class App extends Component {
           <TouchableOpacity
             key={operation[k]}
             onPress={() => {
-              this.operate(operation[k]);
+              this._operate(operation[k]);
             }}
           >
             <View key={k} style={styles.box}>
@@ -144,7 +147,6 @@ export default class App extends Component {
           <View style={styles.innerScreenView}>
             <Text style={{ fontSize: 40 }}>{this.state.result}</Text>
           </View>
-
           <View style={styles.resultView}>
             <Text style={{ fontSize: 30, color: "blue" }}>
               {this.state.store}
@@ -153,12 +155,12 @@ export default class App extends Component {
         </View>
 
         <View style={styles.titleView}>
-          <TouchableOpacity onPress={() => this._pressReset()}>
-            <Text style={styles.title}>Simple Calculator</Text>
+          <TouchableOpacity onPress={() => this._resetButton()}>
+            <Text style={styles.titleText}>Simple Calculator</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.buttonView}>{operationBox}</View>
+        <View style={styles.operatorView}>{operationBox}</View>
         <View style={styles.numberPadView}>{row}</View>
       </View>
     );
@@ -167,19 +169,18 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: "10%",
     flex: 1,
     backgroundColor: "black"
-    //alignItems: "center"
   },
 
   screenView: {
-    paddingTop: "5%",
     flex: 4.5,
     backgroundColor: "transparent"
-    //alignItems: ""
   },
 
   innerScreenView: {
+    padding: "3%",
     flex: 8,
     backgroundColor: "white",
     width: "100%",
@@ -188,10 +189,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: "#bbb",
     alignItems: "flex-end"
-    //justifyContent: "center"
   },
 
   resultView: {
+    paddingTop: "3%",
     flex: 2,
     backgroundColor: "white",
     width: "100%",
@@ -205,14 +206,14 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
 
-  title: {
+  titleText: {
     fontSize: 40,
     fontWeight: "100",
     color: "white",
     backgroundColor: "transparent"
   },
 
-  buttonView: {
+  operatorView: {
     flex: 1,
     backgroundColor: "transparent",
     flexDirection: "row"
