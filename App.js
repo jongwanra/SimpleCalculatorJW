@@ -43,7 +43,7 @@ export default class App extends Component {
     if (result == "" && num == ".") return false;
     else if (result.slice(-1) == "." && num == ".") return false;
     else if (num == "=") {
-      return this._validate() && this._calcultateResult();
+      return this._validate() && this._calculateResult();
     } else {
       this.setState({
         result: result + num
